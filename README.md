@@ -27,6 +27,8 @@
 - Controller
 - Models
 - Serialize missing csv attributes in model (age)
+- Packaging
+- Documentation
 
 
 # Done
