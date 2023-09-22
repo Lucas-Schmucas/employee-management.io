@@ -18,6 +18,17 @@
 - Factories
 - Foreign Key Constraints (cascade, restrict)
 
-# Reminder
-
+# TODOs
+- Routes
+  - POST /api/employee + Test
+  - GET /api/employee + Test
+  - GET /api/employee/{id} + Test
+  - DELETE /api/employee/{id} + Test
+- Controller
+- Models
 - Serialize missing csv attributes in model (age)
+
+
+# Done
+
+- Migrations
