@@ -13,11 +13,6 @@
 - I separated the Models for Employee and Address, this will pay of as the application grows. I could do more separation
   in models (country, prefix, gender), but only addresses is fine for now
 
-# Improvements for later
-
-- Factories
-- Foreign Key Constraints (cascade, restrict)
-
 # TODOs
 - Routes
   - POST /api/employee + Test
@@ -34,3 +29,11 @@
 # Done
 
 - Migrations
+
+
+# Improvements for later
+
+- Factories
+- Foreign Key Constraints (cascade, restrict)
+- The "GET /api/employee" Route should have pagination
+
