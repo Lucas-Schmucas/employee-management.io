@@ -16,7 +16,7 @@ class ApiRequestTest extends TestCase
 
         $file = file_get_contents('./tests/import.csv');
 
-        $response = $this->postJson('/api/employee', [$file], [
+        $response = $this->postJson('/api/employees', [$file], [
             'Content-Type' => 'text/csv',
         ]);
 
