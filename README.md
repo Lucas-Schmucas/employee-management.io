@@ -12,28 +12,33 @@
   csv and curl request. I don't use factories, to save time. "DatabaseTransactions" should also do the trick.
 - I separated the Models for Employee and Address, this will pay of as the application grows. I could do more separation
   in models (country, prefix, gender), but only addresses is fine for now
+- There are sometimes blanks in the csv file keys. I implemented them as part of the COLUMN_MAPPING. Not sure if it
+  would be better to somehow sanitize it to add more error tolerance. Mixed feelings about that.
 
 # TODOs
-- Routes
-  - POST /api/employee + Test
-  - GET /api/employee + Test
-  - GET /api/employee/{id} + Test
-  - DELETE /api/employee/{id} + Test
-- Controller
-- Models
+
 - Serialize missing csv attributes in model (age)
 - Packaging
 - Documentation
 
-
 # Done
 
 - Migrations
-
+- Routes
+    - POST /api/employee + Test
+    - GET /api/employee + Test
+    - GET /api/employee/{id} + Test
+    - DELETE /api/employee/{id} + Test
+- Resources
+- Models
+- Controller
 
 # Improvements for later
 
-- Factories
+- Factories for better testing
+- Validation with maybe token
 - Foreign Key Constraints (cascade, restrict)
 - The "GET /api/employee" Route should have pagination
+- check if city and place_name are always the same
+
 
