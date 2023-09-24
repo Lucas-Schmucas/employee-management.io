@@ -38,4 +38,53 @@ class EmployeeApiTest extends TestCase
             'email' => 'chas.hurdle@gmail.com' // random pick from smallInput.csv
         ]);
     }
+
+    public function test_store_with_broken_data(): void
+    {
+        $file = file_get_contents('./tests/brokenImport.csv'); // brokenImport has an ID with letters
+
+        $response = $this->post('/api/employee', ['file' => $file], ['Content-Type' => 'text/csv']);
+
+        $response->assertStatus(500);
+
+        $this->assertDatabaseCount('employees', 0); // none of the data is stored, even if one row is broken
+
+    }
+
+    public function test_show(): void
+    {
+        $employee = Employee::create([
+            'username' => fake()->userName,
+            'prefix' => fake()->title,
+            'firstname' => fake()->firstName,
+            'middle_initial' => fake()->randomLetter,
+            'lastname' => fake()->lastName,
+            'gender' => fake()->randomElement(['m', 'w', 'd']),
+            'email' => fake()->email,
+            'date_of_birth' => fake()->date('m/d/Y', 'last century'),
+            'date_of_joining' => fake()->date('m/d/Y', 'last decade'),
+            'time_of_birth' => fake()->time('h:i:s A'),
+            'phone_number' => fake()->phoneNumber,
+        ]);
+        $address = new Address([
+            'employee_id' => $employee->id,
+            'street' => fake()->streetName,
+            'city' => fake()->city,
+            'zip' => fake()->postcode,
+            'region' => fake()->citySuffix,
+            'country' => fake()->streetName,
+        ]);
+        $employee->address()->save($address);
+
+        $response = $this->get('/api/employee/' . $employee->id);
+
+        $response->assertStatus(200);
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->has('data', fn(AssertableJson $json) => $json
+                ->has('First Name')
+                ->etc()
+            )->has('created')
+        );
+    }
+
 }
