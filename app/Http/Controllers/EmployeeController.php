@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\EmployeeCollection;
 use App\Http\Resources\EmployeeResource;
+use App\Models\Address;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
@@ -51,13 +54,8 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $this->parseCsvRequest($request);
-        foreach ($data as $employee) {
-            Employee::create([
-                $employee
-            ]);
-        }
-        return (new EmployeeResource($request))
+        $responseData = $this->handleCsvRequest($request);
+        return (new EmployeeCollection($responseData))
             ->response()
             ->setStatusCode(201);
     }
@@ -76,7 +74,6 @@ class EmployeeController extends Controller
         }
 
         return response()->json(['error' => 'Resource not found'], 404);
-
     }
 
     /**
@@ -95,32 +92,47 @@ class EmployeeController extends Controller
         return response()->json(['error' => 'Resource not found'], 404);
     }
 
-    private function parseCsvRequest(Request $request, string $separator = ",", string $lineBreak = "\n"): array
+    private function handleCsvRequest(Request $request, string $separator = ",", string $lineBreak = "\n"): array
     {
-        $csvData = [];
-        $header = [];
+        $responseData = [];
 
-        $data = str_getcsv($request->input(0), $lineBreak);
+        $csvRows = str_getcsv($request->input('file'), $lineBreak);
+        $csvHeaders = (str_getcsv($csvRows[0], $separator));
+        $columnNames = $this->translateHeadersToColumnNames($csvHeaders);
 
-        foreach ($data as $row) {
-            if (empty($header)) {
-                $header = $this->translateCsvToDatabaseColumn(str_getcsv($row, $separator));
-                continue;
-            }
-            $array = str_getcsv($row, $separator);
-            $csvData[] = array_combine($header, $array);
+        $addressFillables = (new Address)->getFillable();
+
+        for ($i = 1; $i < count($csvRows); $i++) {
+            $data = str_getcsv($csvRows[$i], $separator);
+
+            $storageData = array_combine($columnNames, $data);
+
+            $this->storeCsvData($storageData, $addressFillables);
+
+            $responseData[] = array_combine($csvHeaders, $data);
         }
-
-        return $csvData;
+        return $responseData;
     }
 
-    function translateCsvToDatabaseColumn(array $csvHeaders) : array
+    private function translateHeadersToColumnNames(array $csvHeaders): array
     {
-        $translatedHeaders = [];
+        $columnNames = [];
 
-        foreach ($csvHeaders as $key => $header){
-            $translatedHeaders[$key] = self::COLUMN_MAPPING[$header];
+        foreach ($csvHeaders as $key => $header) {
+            $columnNames[$key] = self::COLUMN_MAPPING[$header];
         }
-        return $translatedHeaders;
+        return $columnNames;
+    }
+
+    private function storeCsvData(array $storageRow, array $addressFillables)
+    {
+        $addressData = array_intersect_key($storageRow, array_flip($addressFillables));
+        $employeeData = array_diff_key($storageRow, $addressData);
+
+        DB::transaction(function () use ($employeeData, $addressData) {
+            $employee = Employee::create($employeeData);
+            $address = new Address($addressData);
+            $employee->address()->save($address);
+        });
     }
 }
