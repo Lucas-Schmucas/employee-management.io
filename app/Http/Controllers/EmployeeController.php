@@ -26,13 +26,13 @@ class EmployeeController extends Controller
         'E Mail' => 'email',
         'Date of Birth' => 'date_of_birth', // Maybe store together with time
         'Time of Birth' => 'time_of_birth',
-        'Age in Yrs.' => null,
+        'Age in Yrs.' => 'age_in_years',
         'Date of Joining' => 'date_of_joining',
-        'Age in Company (Years)' => null,
+        'Age in Company (Years)' => 'age_in_company',
         'Phone No. ' => 'phone_number',
 
         //Address
-        'Place Name' => 'place_name', // = City??
+        'Place Name' => 'street', // TODO: error in input file. More in README.md
         'County' => 'country',
         'City' => 'city',
         'Zip' => 'zip',
@@ -65,7 +65,7 @@ class EmployeeController extends Controller
      */
     public function show(int $id)
     {
-        $employee = Employee::find($id);
+        $employee = Employee::find($id)->toArray();
 
         if ($employee) {
             return (new EmployeeResource($employee))
@@ -101,16 +101,20 @@ class EmployeeController extends Controller
         $columnNames = $this->translateHeadersToColumnNames($csvHeaders);
 
         $addressFillables = (new Address)->getFillable();
+        DB::transaction(function () use ($addressFillables, $csvRows, $separator, $columnNames, $csvHeaders, $responseData) {
 
-        for ($i = 1; $i < count($csvRows); $i++) {
-            $data = str_getcsv($csvRows[$i], $separator);
 
-            $storageData = array_combine($columnNames, $data);
+            for ($i = 1; $i < count($csvRows); $i++) {
+                $data = str_getcsv($csvRows[$i], $separator);
 
-            $this->storeCsvData($storageData, $addressFillables);
+                $storageData = array_combine($columnNames, $data);
 
-            $responseData[] = array_combine($csvHeaders, $data);
-        }
+                $this->storeCsvData($storageData, $addressFillables);
+
+                $responseData[] = array_combine($csvHeaders, $data);
+            }
+            return $responseData;
+        });
         return $responseData;
     }
 
@@ -129,10 +133,8 @@ class EmployeeController extends Controller
         $addressData = array_intersect_key($storageRow, array_flip($addressFillables));
         $employeeData = array_diff_key($storageRow, $addressData);
 
-        DB::transaction(function () use ($employeeData, $addressData) {
-            $employee = Employee::create($employeeData);
-            $address = new Address($addressData);
-            $employee->address()->save($address);
-        });
+        $employee = Employee::create($employeeData);
+        $address = new Address($addressData);
+        $employee->address()->save($address);
     }
 }
