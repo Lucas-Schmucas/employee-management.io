@@ -25,7 +25,6 @@ return new class extends Migration
             $table->time('time_of_birth');
             $table->date('date_of_joining');
             $table->string('phone_number');
-            $table->foreignId('address_id');
         });
     }
 

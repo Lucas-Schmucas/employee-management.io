@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('zip');
             $table->string('region');
             $table->string('country');
+            $table->foreignId('employee_id');
         });
     }
 
