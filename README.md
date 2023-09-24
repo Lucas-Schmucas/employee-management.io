@@ -30,10 +30,13 @@
   laravel does not find the body part without a key. Maybe there is something wrong with my curl on windows. The test is
   working in that part. I tried postman as alternative to curl to get better feedback, but that does not work ether. I
   will fix this later.
+- The employee date mutation for the input and output works fine but needs fine-tuning in the future, because at the
+  moment, every employee retrieved from the dat the database has that wacky date format from the import.csv.
+- My EmployeeController is already so Validation will be part of request classes, or maybe I'll make a
+  RequestPreparation class in the future.
 
 # TODOs
 
-- Format input for database
 - Validation
 - Serialize missing csv attributes in model (age)
 - Packaging
@@ -41,6 +44,7 @@
 
 # Done
 
+- Format input for database
 - Migrations
 - Routes
     - POST /api/employee + Test
@@ -53,6 +57,7 @@
 
 # Improvements for later
 
+- Date mutation at collection level instead of model level
 - Factories for better testing
 - Authorization with maybe token
 - Foreign Key Constraints (cascade, restrict)
