@@ -9,17 +9,29 @@
 # Thoughts
 
 - I start with a test for the post route, to check for correct response and database saving. Therefore, I use the given
-  csv and curl request. I don't use factories, to save time. "DatabaseTransactions" should also do the trick.
+  csv and curl request. I don't use factories, to save time. "DatabaseTransactions" in the test should also do the trick.
 - I separated the Models for Employee and Address, this will pay of as the application grows. I could do more separation
-  in models (country, prefix, gender), but only addresses is fine for now
+  in models (country, prefix, gender), but only addresses is fine for now.
 - There are sometimes blanks in the csv file keys. I implemented them as part of the COLUMN_MAPPING. Not sure if it
   would be better to somehow sanitize it to add more error tolerance. Mixed feelings about that.
+- So what would happen if there is something wrong with the data, trying to get in the database. I choose for now to
+  save no data, for consistency. Another attempt would be to make an upsert with logging and user feedback for the bad
+  rows in the csv.
+- I am at a point where I doubt, that is really the best to separate employee and address. Because of the nature of the
+  input, there has to be some kind of separation process, which will end in slower upload times. I think in the future
+  it will still be better to have to models, because this is now just an api endpoint, but in a real application there
+  would be some kind of managing and working with the data, where separate models would make it
+  easier. Using the POST Route with lots of data also sounds like a "one per month/week/day"-task. So there will
+  probably be no hard feelings if the upload takes 1 sec longer.
+-  It would be better to adjust the relationship to 1-n for employee-address. This enables employees to have like a work
+   address, a private address and so on.
 
 # TODOs
 
+- Validation
 - Serialize missing csv attributes in model (age)
 - Packaging
-- Documentation
+- Documentation (maybe Swagger?)
 
 # Done
 
@@ -36,9 +48,11 @@
 # Improvements for later
 
 - Factories for better testing
-- Validation with maybe token
+- Authorization with maybe token
 - Foreign Key Constraints (cascade, restrict)
 - The "GET /api/employee" Route should have pagination
-- check if city and place_name are always the same
-
+- Check if city and place_name are always the same
+- Improve Header Serialization
+- Batch processing for storing in the database
+- Improve data storage with upsert, logging and row specific user feedback.
 
