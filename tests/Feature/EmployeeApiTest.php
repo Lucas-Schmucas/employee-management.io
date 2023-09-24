@@ -3,14 +3,17 @@
 
 namespace Tests\Feature;
 
+use App\Models\Address;
+use App\Models\Employee;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
-class ApiRequestTest extends TestCase
+class EmployeeApiTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_employee_create()
+    public function test_store(): void
     {
         // "curl -X POST -H 'Content-Type: text/csv' -d @smallImport.csv http://127.0.10.1:7777/api/employee";
 
@@ -20,14 +23,19 @@ class ApiRequestTest extends TestCase
 
         $response->assertStatus(201);
 
-        $response->assertJson([
-            'created' => true,
-        ]);
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->has('data', fn(AssertableJson $json) => $json
+                ->first(fn(AssertableJson $json) => $json
+                    ->where('First Name', 'Chas')
+                    ->etc()
+                )->etc()
+            )->has('created')
+        );
+
         $this->assertDatabaseCount('employees', 2);
 
         $this->assertDatabaseHas('employees', [
-            'email' => 'avelina.stoner@exxonmobil.com' // random pick
+            'email' => 'chas.hurdle@gmail.com' // random pick from smallInput.csv
         ]);
-
     }
 }
