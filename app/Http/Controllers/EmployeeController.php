@@ -44,7 +44,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        return (new EmployeeResource(Employee::all()))
+        return (new EmployeeCollection(Employee::paginate()))
             ->response()
             ->setStatusCode(200);
     }
