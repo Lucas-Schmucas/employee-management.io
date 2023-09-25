@@ -1,10 +1,15 @@
 # Setup
 
+- `git clone` this repo
+- run `composer install`
+- run `npm install`
+- create your own `.env` file and adjust the database connection according to your system
+- run `php artisan migrate --force`, this will also create a database
+
 # Components
 
 - MariaDB
 - Laravel 10
--
 
 # Thoughts
 
@@ -16,7 +21,8 @@
 - There are sometimes blanks in the csv file keys. I implemented them as part of the COLUMN_MAPPING. Not sure if it
   would be better to somehow sanitize it to add more error tolerance. Mixed feelings about that.
 - So what would happen if there is something wrong with the data, trying to get in the database. I choose for now to
-  save no data, if there is something wrong with one Record, for consistency. A better attempt would be to make an upsert
+  save no data, if there is something wrong with one Record, for consistency. A better attempt would be to make an
+  upsert
   with logging and user feedback for the bad rows in the csv.
 - I am at a point where I doubt, that is really the best to separate employee and address. Because of the nature of the
   input, there has to be some kind of separation process, which will end in slower upload times. I think in the future
@@ -34,35 +40,39 @@
   moment, every employee retrieved from the dat the database has that wacky date format from the import.csv.
 - My EmployeeController is already so Validation will be part of request classes, or maybe I'll make a
   RequestPreparation class in the future.
+- I didn't make it to the big-file-testing but there will probably be some adjustment in the php.ini because of the
+  upload file size.
+- 2
 
 # TODOs
 
+- Missing tests for destroy and index method
 - Validation
-- Serialize missing csv attributes in model (age)
-- Packaging
 - Documentation (maybe Swagger?)
+- Packaging
 
 # Done
 
+- Serialize missing csv attributes in model (age)
 - Format input for database
 - Migrations
+- DELETE /api/employee/{id} (NOT TESTED)
+- GET /api/employee (NOT TESTED)
 - Routes
-    - POST /api/employee + Test
-    - GET /api/employee + Test
-    - GET /api/employee/{id} + Test
-    - DELETE /api/employee/{id} + Test
+- POST /api/employee + Test
+- GET /api/employee/{id} + Test
 - Resources
+- Collection
 - Models
 - Controller
+- Foreign Key Constraints (delete on cascade)
+- Pagination for index method
 
 # Improvements for later
 
 - Date mutation at collection level instead of model level
 - Factories for better testing
 - Authorization with maybe token
-- Foreign Key Constraints (cascade, restrict)
-- The "GET /api/employee" Route should have pagination
-- Check if city and place_name are always the same
 - Improve Header Serialization
 - Batch processing for storing in the database
 - Improve data storage with upsert, logging and row specific user feedback for bad entry data.
