@@ -81,8 +81,24 @@ class EmployeeApiTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(fn(AssertableJson $json) => $json
             ->has('data', fn(AssertableJson $json) => $json
+                ->has('Emp ID')
+                ->has('Name Prefix')
                 ->has('First Name')
-                ->etc()
+                ->has('Middle Initial')
+                ->has('Last Name')
+                ->has('Gender')
+                ->has('E Mail')
+                ->has('Date of Birth')
+                ->has('Time of Birth')
+                ->has('Age in Yrs.')
+                ->has('Date of Joining')
+                ->has('Age in Company (Years)')
+                ->has('Phone No. ')
+                ->has('Place Name')
+                ->has('Country')
+                ->has('City')
+                ->has('Region')
+                ->has('User Name')
             )->has('created')
         );
     }
