@@ -16,8 +16,8 @@
 - There are sometimes blanks in the csv file keys. I implemented them as part of the COLUMN_MAPPING. Not sure if it
   would be better to somehow sanitize it to add more error tolerance. Mixed feelings about that.
 - So what would happen if there is something wrong with the data, trying to get in the database. I choose for now to
-  save no data, for consistency. Another attempt would be to make an upsert with logging and user feedback for the bad
-  rows in the csv.
+  save no data, if there is something wrong with one Record, for consistency. A better attempt would be to make an upsert
+  with logging and user feedback for the bad rows in the csv.
 - I am at a point where I doubt, that is really the best to separate employee and address. Because of the nature of the
   input, there has to be some kind of separation process, which will end in slower upload times. I think in the future
   it will still be better to have to models, because this is now just an api endpoint, but in a real application there
@@ -65,5 +65,5 @@
 - Check if city and place_name are always the same
 - Improve Header Serialization
 - Batch processing for storing in the database
-- Improve data storage with upsert, logging and row specific user feedback.
+- Improve data storage with upsert, logging and row specific user feedback for bad entry data.
 
