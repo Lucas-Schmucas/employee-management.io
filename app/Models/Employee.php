@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Employee extends Model
 {
@@ -35,9 +35,9 @@ class Employee extends Model
         'phone_number',
     ];
 
-    public function address(): HasOneOrMany
+    public function address() : HasOne
     {
-        return $this->hasMany(Address::class);
+        return $this->hasOne(Address::class);
     }
 
     protected function timeOfBirth(): Attribute
@@ -63,4 +63,21 @@ class Employee extends Model
             set: fn(string $value) => Carbon::createFromFormat('m/d/Y', $value)->format('Y-m-d'),
         );
     }
+
+// Carbon::createFromFormat('h:i:s A', $value)->format('H:i:s')
+    protected function ageInCompany(): Attribute
+    {
+        return new Attribute(
+            get: fn() => Carbon::parse($this->date_of_joining)->floatDiffInYears(today()),
+        );
+    }
+
+    protected function ageInYears(): Attribute
+    {
+        return new Attribute(
+            get: fn() => Carbon::parse($this->date_of_birth . ' ' . $this->time_of_birth)->floatDiffInYears(today()),
+        );
+    }
+
+
 }
