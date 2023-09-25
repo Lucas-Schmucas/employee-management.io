@@ -6,6 +6,7 @@ use App\Http\Resources\EmployeeCollection;
 use App\Http\Resources\EmployeeResource;
 use App\Models\Address;
 use App\Models\Employee;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -65,7 +66,7 @@ class EmployeeController extends Controller
      */
     public function show(int $id)
     {
-        $employee = Employee::find($id)->toArray();
+        $employee = Employee::with('address')->findOrFail($id);
 
         if ($employee) {
             return (new EmployeeResource($employee))
@@ -82,7 +83,7 @@ class EmployeeController extends Controller
     public function destroy(int $id)
     {
 
-        $employee = Employee::find($id);
+        $employee = Employee::with('address')->findOrFail($id);
 
         if ($employee) {
             $employee->delete();
@@ -92,28 +93,24 @@ class EmployeeController extends Controller
         return response()->json(['error' => 'Resource not found'], 404);
     }
 
-    private function handleCsvRequest(Request $request, string $separator = ",", string $lineBreak = "\n"): array
+    private function handleCsvRequest(Request $request, string $separator = ",", string $lineBreak = "\n"): Collection
     {
-        $responseData = [];
-
         $csvRows = str_getcsv($request->input('file'), $lineBreak);
         $csvHeaders = (str_getcsv($csvRows[0], $separator));
         $columnNames = $this->translateHeadersToColumnNames($csvHeaders);
 
         $addressFillables = (new Address)->getFillable();
-        return DB::transaction(function () use ($addressFillables, $csvRows, $separator, $columnNames, $csvHeaders, $responseData) {
+        return DB::transaction(function () use ($addressFillables, $csvRows, $separator, $columnNames, $csvHeaders) {
 
-
+            $employees = new Collection();
             for ($i = 1; $i < count($csvRows); $i++) {
                 $data = str_getcsv($csvRows[$i], $separator);
 
                 $storageData = array_combine($columnNames, $data);
 
-                $this->storeCsvData($storageData, $addressFillables);
-
-                $responseData[] = array_combine($csvHeaders, $data);
+                $employees->push($this->storeCsvData($storageData, $addressFillables));
             }
-            return $responseData;
+            return $employees;
         });
     }
 
@@ -135,5 +132,7 @@ class EmployeeController extends Controller
         $employee = Employee::create($employeeData);
         $address = new Address($addressData);
         $employee->address()->save($address);
+
+        return $employee;
     }
 }
