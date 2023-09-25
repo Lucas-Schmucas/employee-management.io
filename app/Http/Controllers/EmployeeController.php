@@ -101,7 +101,7 @@ class EmployeeController extends Controller
         $columnNames = $this->translateHeadersToColumnNames($csvHeaders);
 
         $addressFillables = (new Address)->getFillable();
-        DB::transaction(function () use ($addressFillables, $csvRows, $separator, $columnNames, $csvHeaders, $responseData) {
+        return DB::transaction(function () use ($addressFillables, $csvRows, $separator, $columnNames, $csvHeaders, $responseData) {
 
 
             for ($i = 1; $i < count($csvRows); $i++) {
@@ -115,7 +115,6 @@ class EmployeeController extends Controller
             }
             return $responseData;
         });
-        return $responseData;
     }
 
     private function translateHeadersToColumnNames(array $csvHeaders): array
